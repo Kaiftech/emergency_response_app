@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:android_intent/android_intent.dart';
+import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'emergency_services.dart';
 
 class EmergencyService {
@@ -21,15 +21,10 @@ class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   Future<void> _callEmergencyService(BuildContext context, String phoneNumber) async {
-    final intent = AndroidIntent(
-      action: 'android.intent.action.DIAL',
-      data: 'tel:$phoneNumber',
-    );
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
     try {
-      await intent.launch();
+      await FlutterPhoneDirectCaller.callNumber(phoneNumber);
     } catch (e) {
-      scaffoldMessenger.showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Could not initiate call'),
         ),
@@ -63,7 +58,6 @@ class HomePage extends StatelessWidget {
             ListTile(
               title: const Text('Emergency Response'),
               onTap: () {
-                // Close the drawer and navigate to the emergency services page
                 Navigator.pop(context);
                 Navigator.push(
                   context,
