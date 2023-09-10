@@ -1,159 +1,159 @@
 import 'package:flutter/material.dart';
-import 'dart:io';
 import 'package:webview_flutter/webview_flutter.dart';
 
-
-const kCardIconSize = 48.0;
-
-class EmergencyService {
-  final String serviceType;
-  final String serviceContactNumber;
-
-  EmergencyService({required this.serviceType, required this.serviceContactNumber});
-}
-
-class EmergencyServicesPage extends StatefulWidget {
-  const EmergencyServicesPage({Key? key}) : super(key: key);
-
-  @override
-  _EmergencyServicesPageState createState() => _EmergencyServicesPageState();
-}
-
-class _EmergencyServicesPageState extends State<EmergencyServicesPage>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
-  late Animation<double> _animation;
-
-  final List<String> _disasters = const [
-    'Cyclone',
-    'Tsunami',
-    'Heat Wave',
-    'Landslide',
-    'Floods',
-    'Earthquakes',
+class EmergencyServicesPage extends StatelessWidget {
+  final List<EmergencyService> emergencyServices = [
+    const EmergencyService(
+      serviceType: 'Cyclone',
+      serviceContactNumber: 'https://www.ndma.gov.in/Natural-Hazards/Cyclone',
+    ),
+    const EmergencyService(
+      serviceType: 'Tsunami',
+      serviceContactNumber: 'https://www.ndma.gov.in/Natural-Hazards/Tsunami',
+    ),
+    const EmergencyService(
+      serviceType: 'Heat Wave',
+      serviceContactNumber: 'https://www.ndma.gov.in/Natural-Hazards/Heat-Wave',
+    ),
+    const EmergencyService(
+      serviceType: 'Landslide',
+      serviceContactNumber: 'https://www.ndma.gov.in/Natural-Hazards/Landslide',
+    ),
+    const EmergencyService(
+      serviceType: 'Floods',
+      serviceContactNumber: 'https://www.ndma.gov.in/Natural-Hazards/Floods',
+    ),
+    const EmergencyService(
+      serviceType: 'Earthquakes',
+      serviceContactNumber:
+          'https://www.ndma.gov.in/Natural-Hazards/Earthquakes',
+    ),
+    // Add other emergency services here
   ];
 
-  final Map<String, String> _disasterInformation = const {
-    'Cyclone': 'https://www.ndma.gov.in/Natural-Hazards/Cyclone',
-    'Tsunami': 'https://www.ndma.gov.in/Natural-Hazards/Tsunami',
-    'Heat Wave': 'https://www.ndma.gov.in/Natural-Hazards/Heat-Wave',
-    'Landslide': 'https://www.ndma.gov.in/Natural-Hazards/Landslide',
-    'Floods': 'https://www.ndma.gov.in/Natural-Hazards/Floods',
-    'Earthquakes': 'https://www.ndma.gov.in/Natural-Hazards/Earthquakes',
-  };
-
-  @override
-  void initState() {
-    super.initState();
-    if (Platform.isAndroid) {
-      WebView.platform = SurfaceAndroidWebView();
-    }
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1500),
-    )..forward();
-
-    _animation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeInOut,
-      ),
-    );
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
-
-  Widget _buildDisasterCard(String disaster, String url) {
-    return FadeTransition(
-      opacity: _animation,
-      child: Card(
-        shadowColor: Colors.grey.withOpacity(0.5),
-        elevation: 5.0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10.0),
-        ),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(10.0),
-          onTap: () {
-            Navigator.of(context).push(MaterialPageRoute(
-              builder: (BuildContext context) => WebView(
-                initialUrl: url,
-                javascriptMode: JavascriptMode.unrestricted,
-                navigationDelegate: (NavigationRequest request) {
-                  if (request.url == url) {
-                    return NavigationDecision.navigate;
-                  } else {
-                    return NavigationDecision.prevent;
-                  }
-                },
-              ),
-            ));
-          },
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.warning,
-                  size: kCardIconSize,
-                  color: Theme.of(context).primaryColor,
-                ),
-                const SizedBox(width: 16.0),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        disaster,
-                        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 8.0),
-                      Text(
-                        'View Guidelines',
-                        style: TextStyle(fontSize: 18, color: Theme.of(context).primaryColor),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+  EmergencyServicesPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Emergency Services'),
-        automaticallyImplyLeading: false,
+        title: const Text('Emergency Services Guidelines'),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Text(
-                'Guidelines for Natural Disasters:',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+      body: ListView.builder(
+        itemCount: emergencyServices.length,
+        itemBuilder: (context, index) {
+          final service = emergencyServices[index];
+          return EmergencyServiceCard(service: service);
+        },
+      ),
+    );
+  }
+}
+
+class EmergencyServiceCard extends StatelessWidget {
+  final EmergencyService service;
+
+  const EmergencyServiceCard({
+    Key? key,
+    required this.service,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 5.0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(10.0),
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (BuildContext context) => EmergencyServiceWebView(
+                initialUrl: service.serviceContactNumber,
+                pageTitle: service.serviceType,
               ),
             ),
-            ..._disasters.map(
-                  (disaster) => _buildDisasterCard(
-                disaster,
-                _disasterInformation[disaster]!,
+          );
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            children: [
+              Icon(
+                Icons.warning,
+                size: 48.0,
+                color: Theme.of(context).primaryColor,
               ),
-            ),
-          ],
+              const SizedBox(width: 16.0),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      service.serviceType,
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8.0),
+                    Text(
+                      'View Guidelines',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Theme.of(context).primaryColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
+}
+
+class EmergencyServiceWebView extends StatelessWidget {
+  final String initialUrl;
+  final String pageTitle;
+
+  const EmergencyServiceWebView({
+    Key? key,
+    required this.initialUrl,
+    required this.pageTitle,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(pageTitle),
+      ),
+      body: WebView(
+        initialUrl: initialUrl,
+        javascriptMode: JavascriptMode.unrestricted,
+        navigationDelegate: (NavigationRequest request) {
+          if (request.url == initialUrl) {
+            return NavigationDecision.navigate;
+          } else {
+            return NavigationDecision.prevent;
+          }
+        },
+      ),
+    );
+  }
+}
+
+class EmergencyService {
+  final String serviceType;
+  final String serviceContactNumber;
+
+  const EmergencyService({
+    required this.serviceType,
+    required this.serviceContactNumber,
+  });
 }
